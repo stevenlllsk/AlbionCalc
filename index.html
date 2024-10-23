@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albion Market Price Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result p {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Albion Market Price Checker</h1>
+    
+    <label for="itemID">Enter Item ID:</label>
+    <input type="text" id="itemID" placeholder="e.g., T4_BAG">
+    
+    <label for="cities">Enter Cities (comma-separated):</label>
+    <input type="text" id="cities" placeholder="e.g., Fort Sterling,Martlock">
+    
+    <button onclick="fetchMarketData()">Check Prices</button>
+    
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    async function fetchMarketData() {
+        const itemID = document.getElementById('itemID').value;
+        const cities = document.getElementById('cities').value.split(',').map(city => city.trim()).join(',');
+
+        const url = `https://www.albion-online-data.com/api/v2/stats/Prices/${itemID}?locations=${cities}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            displayData(data);
+        } catch (error) {
+            document.getElementById('result').innerHTML = `<p>Error fetching data: ${error.message}</p>`;
+        }
+    }
+
+    function displayData(data) {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';  // Clear previous results
+
+        if (data.length === 0) {
+            resultDiv.innerHTML = '<p>No data found for this item and cities.</p>';
+            return;
+        }
+
+        data.forEach(item => {
+            resultDiv.innerHTML += `
+                <p><strong>City:</strong> ${item.city} <br>
+                   <strong>Sell Price:</strong> ${item.sell_price_min} (Min) | ${item.sell_price_max} (Max) <br>
+                   <strong>Buy Price:</strong> ${item.buy_price_min} (Min) | ${item.buy_price_max} (Max)</p>
+            `;
+        });
+    }
+</script>
+
+</body>
+</html>
